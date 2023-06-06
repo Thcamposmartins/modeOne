@@ -10,10 +10,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 @Repository
-public class ContasCorrenteRopository {
+public class ContasCorrenteRepository {
     private Set<ContaCorrente> contas;
 
-    public ContasCorrenteRopository() {
+    public ContasCorrenteRepository() {
         contas = new HashSet<>();
     }
 

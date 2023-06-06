@@ -1,13 +1,9 @@
 package com.posbank.modeOne.src.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.beans.BeanInfo;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -50,7 +46,7 @@ public class ContaCorrente {
         this.saldo = BigDecimal.ZERO;
     }
 
-    public int obterNUmeroConta(){
+    public int obterNumeroConta(){
         return Integer.parseInt(numero);
     }
 

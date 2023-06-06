@@ -1,9 +1,9 @@
 package com.posbank.modeOne.src.controller;
 
-import com.googlecode.jmapper.JMapper;
-import com.posbank.modeOne.src.dto.ContaCorrenteDTO;
+import com.posbank.modeOne.src.config.MovimentacaoContaMapper;
 import com.posbank.modeOne.src.dto.CorrentistaDTO;
-import com.posbank.modeOne.src.repository.ContasCorrenteRopository;
+import com.posbank.modeOne.src.dto.MovimentacaoContaDTO;
+import com.posbank.modeOne.src.repository.ContasCorrenteRepository;
 import com.posbank.modeOne.src.service.ContaCorrente;
 import com.posbank.modeOne.src.service.MovimentacaoConta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,9 @@ import java.util.UUID;
 public class ContaController {
 
     @Autowired
-    private ContasCorrenteRopository contasCorrenteRopository;
-//    @Autowired
-//    private JMapper<ContaCorrente, ContaCorrenteDTO> contaCorrenteMapper;
+    private ContasCorrenteRepository contasCorrenteRepository;
+    @Autowired
+    private MovimentacaoContaMapper mapperMovimentacao;
 
     @PostMapping
     public ResponseEntity<ContaCorrente> criarConta(@RequestBody CorrentistaDTO correntistaDTO) {
@@ -32,7 +32,7 @@ public class ContaController {
         String numero = Integer.toString(new Random().nextInt(Integer.MAX_VALUE));
 
         ContaCorrente conta = new ContaCorrente(banco, agencia, numero, correntistaDTO.toCorrentista());
-        contasCorrenteRopository.salvar(conta);
+        contasCorrenteRepository.salvar(conta);
         return ResponseEntity.status(HttpStatus.CREATED).body(conta);
     }
 
@@ -40,21 +40,21 @@ public class ContaController {
     public ResponseEntity<String> consultarSaldo(@RequestParam(name = "banco") String banco,
                                                  @RequestParam(name = "agencia") String agencia,
                                                  @RequestParam(name = "numero") String numero) {
-        ContaCorrente contaCorrente = contasCorrenteRopository.buscar(banco, agencia, numero).orElse(new ContaCorrente());
+        ContaCorrente contaCorrente = contasCorrenteRepository.buscar(banco, agencia, numero).orElse(new ContaCorrente());
 
         return ResponseEntity.status(200).body("Seu saldo atual é de " + contaCorrente.lerSaldo() + " reais !");
     }
 
     @PutMapping
-    public ResponseEntity<String> movimentarConta(@RequestBody MovimentacaoConta movimentacao) {
-
-        Optional<ContaCorrente> opContaCorrente = contasCorrenteRopository.buscar(movimentacao.getBanco(), movimentacao.getAgencia(), movimentacao.getNumero());
+    public ResponseEntity<String> movimentarConta(@RequestBody MovimentacaoContaDTO movimentacaoDTO) {
+        MovimentacaoConta movimentacao = mapperMovimentacao.movimentacaoContaDtoToMovimentacaoConta(movimentacaoDTO);
+        Optional<ContaCorrente> opContaCorrente = contasCorrenteRepository.buscar(movimentacao.getBanco(), movimentacao.getAgencia(), movimentacao.getNumero());
         if (opContaCorrente.isEmpty()) {
             return ResponseEntity.badRequest().body("Conta corrente não existe");
         }
         ContaCorrente contaCorrente = opContaCorrente.get();
         movimentacao.executarEm(contaCorrente);
-        contasCorrenteRopository.salvar(contaCorrente);
+        contasCorrenteRepository.salvar(contaCorrente);
 
         return ResponseEntity.status(200).body("Moviventação realizada com sucesso");
     }
@@ -62,7 +62,7 @@ public class ContaController {
     @DeleteMapping
     public ResponseEntity<String> fecharConta(@RequestParam(name = "id") UUID id){
 //        ContaCorrente conta = contaCorrenteMapper.getDestination(contaCorrenteDTO);
-        contasCorrenteRopository.fechar(id);
+        contasCorrenteRepository.fechar(id);
         return ResponseEntity.status(200).body("Fechamento de conta realizada com sucesso");
     }
 }
