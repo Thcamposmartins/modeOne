@@ -1,21 +1,22 @@
 package com.posbank.modeOne.src.service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
+@Builder
+@Getter
 public class MovimentacaoConta {
-    @JsonProperty
+
     private ContaCorrente conta;
 
-    @JsonProperty
     private BigDecimal valor;
 
-    @JsonProperty
     private int operacao;
 
     public int obterNumeroConta(){
-        return conta.obterNUmeroConta();
+        return conta.obterNumeroConta();
     }
 
     public void executarEm(ContaCorrente conta){
